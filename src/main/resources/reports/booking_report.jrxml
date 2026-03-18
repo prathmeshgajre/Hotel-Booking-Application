@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              name="booking_report"
+              pageWidth="842"
+              pageHeight="595"
+              orientation="Landscape"
+              columnWidth="802"
+              leftMargin="20"
+              rightMargin="20"
+              topMargin="20"
+              bottomMargin="20">
+
+    <parameter name="createdBy" class="java.lang.String"/>
+
+    <!-- All fields match BookingDTO getter names exactly -->
+    <field name="id"                 class="java.lang.Long"/>
+    <field name="confirmationNumber" class="java.lang.String"/>
+    <field name="hotelName"          class="java.lang.String"/>
+    <field name="customerName"       class="java.lang.String"/>
+    <field name="customerEmail"      class="java.lang.String"/>
+    <field name="checkinDate"        class="java.lang.Object"/>
+    <field name="checkoutDate"       class="java.lang.Object"/>
+    <field name="totalPrice"         class="java.lang.Object"/>
+    <field name="paymentStatus"      class="java.lang.Object"/>
+    <field name="paymentMethod"      class="java.lang.Object"/>
+
+    <!-- Row counter for alternating colors -->
+    <variable name="rowNumber" class="java.lang.Integer" calculation="Count">
+        <variableExpression><![CDATA[$F{id}]]></variableExpression>
+    </variable>
+
+    <!-- ==================== BACKGROUND ==================== -->
+    <!-- background band height must be <= pageHeight - topMargin - bottomMargin = 595 - 20 - 20 = 555 -->
+    <background>
+        <band height="555">
+            <!-- Deep navy base -->
+            <rectangle>
+                <reportElement x="0" y="0" width="802" height="555" backcolor="#0A0F2E" mode="Opaque"/>
+            </rectangle>
+            <!-- Decorative accent strip top-right -->
+            <rectangle>
+                <reportElement x="560" y="0" width="242" height="6" backcolor="#FF6B35" mode="Opaque"/>
+            </rectangle>
+            <!-- Decorative accent strip bottom-left -->
+            <rectangle>
+                <reportElement x="0" y="549" width="242" height="6" backcolor="#00D4AA" mode="Opaque"/>
+            </rectangle>
+        </band>
+    </background>
+
+    <!-- ==================== TITLE ==================== -->
+    <title>
+        <band height="90">
+
+            <!-- Main gradient header background (deep purple-to-indigo) -->
+            <rectangle>
+                <reportElement x="0" y="0" width="802" height="80" backcolor="#1B0A4F" mode="Opaque"/>
+            </rectangle>
+
+            <!-- Left vivid accent bar (coral/orange) -->
+            <rectangle>
+                <reportElement x="0" y="0" width="8" height="80" backcolor="#FF6B35" mode="Opaque"/>
+            </rectangle>
+
+            <!-- Right vivid accent bar (teal) -->
+            <rectangle>
+                <reportElement x="794" y="0" width="8" height="80" backcolor="#00D4AA" mode="Opaque"/>
+            </rectangle>
+
+            <!-- Top shimmer line (gold) -->
+            <rectangle>
+                <reportElement x="8" y="0" width="786" height="3" backcolor="#FFD700" mode="Opaque"/>
+            </rectangle>
+
+            <!-- Bottom shimmer line (magenta) -->
+            <rectangle>
+                <reportElement x="8" y="77" width="786" height="3" backcolor="#FF2D78" mode="Opaque"/>
+            </rectangle>
+
+            <!-- Decorative circle accent left -->
+            <ellipse>
+                <reportElement x="15" y="10" width="55" height="55" backcolor="#FF6B35" mode="Opaque" forecolor="#FF6B35"/>
+            </ellipse>
+            <ellipse>
+                <reportElement x="20" y="15" width="45" height="45" backcolor="#1B0A4F" mode="Opaque" forecolor="#1B0A4F"/>
+            </ellipse>
+
+            <!-- Hotel icon letter H in circle -->
+            <staticText>
+                <reportElement x="24" y="22" width="37" height="30" forecolor="#FF6B35"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="20" isBold="true"/>
+                </textElement>
+                <text><![CDATA[H]]></text>
+            </staticText>
+
+            <!-- Main Title -->
+            <staticText>
+                <reportElement x="80" y="8" width="500" height="38" forecolor="#FFFFFF"/>
+                <textElement textAlignment="Left" verticalAlignment="Middle">
+                    <font size="24" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Hotel Booking Report]]></text>
+            </staticText>
+
+            <!-- Subtitle / tagline -->
+            <staticText>
+                <reportElement x="80" y="46" width="300" height="16" forecolor="#00D4AA"/>
+                <textElement textAlignment="Left">
+                    <font size="9" isItalic="true"/>
+                </textElement>
+                <text><![CDATA[Comprehensive Reservation Overview]]></text>
+            </staticText>
+
+            <!-- Generated by label -->
+            <textField>
+                <reportElement x="500" y="46" width="290" height="16" forecolor="#FFD700"/>
+                <textElement textAlignment="Right">
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Generated by: " + $P{createdBy}]]></textFieldExpression>
+            </textField>
+
+            <!-- Decorative right badge box -->
+            <rectangle>
+                <reportElement x="680" y="10" width="110" height="30" backcolor="#FF2D78" mode="Opaque"/>
+            </rectangle>
+            <staticText>
+                <reportElement x="680" y="10" width="110" height="30" forecolor="#FFFFFF"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[CONFIDENTIAL]]></text>
+            </staticText>
+
+            <!-- Gap line between title and column header -->
+            <rectangle>
+                <reportElement x="0" y="82" width="802" height="8" backcolor="#0D1B3E" mode="Opaque"/>
+            </rectangle>
+
+        </band>
+    </title>
+
+    <!-- ==================== COLUMN HEADERS ==================== -->
+    <columnHeader>
+        <band height="30">
+
+            <!-- Header background: vivid electric indigo -->
+            <rectangle>
+                <reportElement x="0" y="0" width="802" height="30" backcolor="#2D0B6B" mode="Opaque"/>
+            </rectangle>
+
+            <!-- Bottom border accent (teal line under headers) -->
+            <rectangle>
+                <reportElement x="0" y="27" width="802" height="3" backcolor="#00D4AA" mode="Opaque"/>
+            </rectangle>
+
+            <!-- Column dividers (subtle violet) -->
+            <line>
+                <reportElement x="35"  y="4" width="0" height="22" forecolor="#6A3FA0"/>
+                <graphicElement><pen lineWidth="1.0"/></graphicElement>
+            </line>
+            <line>
+                <reportElement x="110" y="4" width="0" height="22" forecolor="#6A3FA0"/>
+                <graphicElement><pen lineWidth="1.0"/></graphicElement>
+            </line>
+            <line>
+                <reportElement x="250" y="4" width="0" height="22" forecolor="#6A3FA0"/>
+                <graphicElement><pen lineWidth="1.0"/></graphicElement>
+            </line>
+            <line>
+                <reportElement x="350" y="4" width="0" height="22" forecolor="#6A3FA0"/>
+                <graphicElement><pen lineWidth="1.0"/></graphicElement>
+            </line>
+            <line>
+                <reportElement x="480" y="4" width="0" height="22" forecolor="#6A3FA0"/>
+                <graphicElement><pen lineWidth="1.0"/></graphicElement>
+            </line>
+            <line>
+                <reportElement x="550" y="4" width="0" height="22" forecolor="#6A3FA0"/>
+                <graphicElement><pen lineWidth="1.0"/></graphicElement>
+            </line>
+            <line>
+                <reportElement x="620" y="4" width="0" height="22" forecolor="#6A3FA0"/>
+                <graphicElement><pen lineWidth="1.0"/></graphicElement>
+            </line>
+            <line>
+                <reportElement x="685" y="4" width="0" height="22" forecolor="#6A3FA0"/>
+                <graphicElement><pen lineWidth="1.0"/></graphicElement>
+            </line>
+            <line>
+                <reportElement x="745" y="4" width="0" height="22" forecolor="#6A3FA0"/>
+                <graphicElement><pen lineWidth="1.0"/></graphicElement>
+            </line>
+
+            <!-- ID column - coral accent -->
+            <rectangle>
+                <reportElement x="0" y="0" width="35" height="27" backcolor="#FF6B35" mode="Opaque"/>
+            </rectangle>
+            <staticText>
+                <reportElement x="0" y="0" width="35" height="27" forecolor="#FFFFFF" backcolor="#FF6B35" mode="Opaque"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true" size="8"/></textElement>
+                <text><![CDATA[ID]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="35"  y="0" width="75"  height="27" forecolor="#FFD700" backcolor="#2D0B6B" mode="Opaque"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true" size="8"/></textElement>
+                <text><![CDATA[Confirm #]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="110" y="0" width="140" height="27" forecolor="#00D4AA" backcolor="#2D0B6B" mode="Opaque"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true" size="8"/></textElement>
+                <text><![CDATA[Hotel Name]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="250" y="0" width="100" height="27" forecolor="#FF2D78" backcolor="#2D0B6B" mode="Opaque"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true" size="8"/></textElement>
+                <text><![CDATA[Customer]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="350" y="0" width="130" height="27" forecolor="#A78BFA" backcolor="#2D0B6B" mode="Opaque"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true" size="8"/></textElement>
+                <text><![CDATA[Email]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="480" y="0" width="70"  height="27" forecolor="#34D399" backcolor="#2D0B6B" mode="Opaque"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true" size="8"/></textElement>
+                <text><![CDATA[Check-In]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="550" y="0" width="70"  height="27" forecolor="#F472B6" backcolor="#2D0B6B" mode="Opaque"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true" size="8"/></textElement>
+                <text><![CDATA[Check-Out]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="620" y="0" width="65"  height="27" forecolor="#FBBF24" backcolor="#2D0B6B" mode="Opaque"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true" size="8"/></textElement>
+                <text><![CDATA[Total ($)]]></text>
+            </staticText>
+
+            <!-- Status header - vibrant magenta -->
+            <rectangle>
+                <reportElement x="685" y="0" width="60" height="27" backcolor="#7C3AED" mode="Opaque"/>
+            </rectangle>
+            <staticText>
+                <reportElement x="685" y="0" width="60"  height="27" forecolor="#FFFFFF" backcolor="#7C3AED" mode="Opaque"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true" size="8"/></textElement>
+                <text><![CDATA[Status]]></text>
+            </staticText>
+
+            <!-- Method header - teal -->
+            <rectangle>
+                <reportElement x="745" y="0" width="57" height="27" backcolor="#0D9488" mode="Opaque"/>
+            </rectangle>
+            <staticText>
+                <reportElement x="745" y="0" width="57"  height="27" forecolor="#FFFFFF" backcolor="#0D9488" mode="Opaque"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true" size="8"/></textElement>
+                <text><![CDATA[Method]]></text>
+            </staticText>
+
+        </band>
+    </columnHeader>
+
+    <!-- ==================== DATA ROWS ==================== -->
+    <detail>
+        <band height="24">
+
+            <!-- Row background: alternating dark navy / slightly lighter navy -->
+            <rectangle>
+                <reportElement x="0" y="0" width="802" height="24" mode="Opaque"
+                               backcolor="#0F1A3E">
+                    <printWhenExpression><![CDATA[$V{rowNumber} % 2 == 0]]></printWhenExpression>
+                </reportElement>
+            </rectangle>
+            <rectangle>
+                <reportElement x="0" y="0" width="802" height="24" mode="Opaque"
+                               backcolor="#162040">
+                    <printWhenExpression><![CDATA[$V{rowNumber} % 2 != 0]]></printWhenExpression>
+                </reportElement>
+            </rectangle>
+
+            <!-- Left accent strip alternating colors -->
+            <rectangle>
+                <reportElement x="0" y="0" width="4" height="24" backcolor="#FF6B35" mode="Opaque">
+                    <printWhenExpression><![CDATA[$V{rowNumber} % 2 == 0]]></printWhenExpression>
+                </reportElement>
+            </rectangle>
+            <rectangle>
+                <reportElement x="0" y="0" width="4" height="24" backcolor="#00D4AA" mode="Opaque">
+                    <printWhenExpression><![CDATA[$V{rowNumber} % 2 != 0]]></printWhenExpression>
+                </reportElement>
+            </rectangle>
+
+            <!-- Bottom separator line -->
+            <line>
+                <reportElement x="0" y="23" width="802" height="0" forecolor="#1E2D5A"/>
+                <graphicElement><pen lineWidth="0.5"/></graphicElement>
+            </line>
+
+            <!-- ID - bright coral -->
+            <textField isBlankWhenNull="true">
+                <reportElement x="4"   y="3" width="31"  height="18" forecolor="#FF6B35"/>
+                <textElement textAlignment="Center"><font size="8" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$F{id}]]></textFieldExpression>
+            </textField>
+
+            <!-- Confirmation Number - gold -->
+            <textField isBlankWhenNull="true">
+                <reportElement x="35"  y="3" width="75"  height="18" forecolor="#FFD700"/>
+                <textElement textAlignment="Center"><font size="8"/></textElement>
+                <textFieldExpression><![CDATA[$F{confirmationNumber}]]></textFieldExpression>
+            </textField>
+
+            <!-- Hotel Name - teal -->
+            <textField isBlankWhenNull="true">
+                <reportElement x="110" y="3" width="140" height="18" forecolor="#00D4AA"/>
+                <textElement textAlignment="Center"><font size="8"/></textElement>
+                <textFieldExpression><![CDATA[$F{hotelName}]]></textFieldExpression>
+            </textField>
+
+            <!-- Customer Name - pink -->
+            <textField isBlankWhenNull="true">
+                <reportElement x="250" y="3" width="100" height="18" forecolor="#F9A8D4"/>
+                <textElement textAlignment="Center"><font size="8"/></textElement>
+                <textFieldExpression><![CDATA[$F{customerName}]]></textFieldExpression>
+            </textField>
+
+            <!-- Email - soft lavender -->
+            <textField isBlankWhenNull="true">
+                <reportElement x="350" y="3" width="130" height="18" forecolor="#C4B5FD"/>
+                <textElement textAlignment="Center"><font size="8"/></textElement>
+                <textFieldExpression><![CDATA[$F{customerEmail}]]></textFieldExpression>
+            </textField>
+
+            <!-- Check-In - green -->
+            <textField isBlankWhenNull="true">
+                <reportElement x="480" y="3" width="70"  height="18" forecolor="#34D399"/>
+                <textElement textAlignment="Center"><font size="8"/></textElement>
+                <textFieldExpression><![CDATA[$F{checkinDate} != null ? $F{checkinDate}.toString() : ""]]></textFieldExpression>
+            </textField>
+
+            <!-- Check-Out - rose pink -->
+            <textField isBlankWhenNull="true">
+                <reportElement x="550" y="3" width="70"  height="18" forecolor="#F472B6"/>
+                <textElement textAlignment="Center"><font size="8"/></textElement>
+                <textFieldExpression><![CDATA[$F{checkoutDate} != null ? $F{checkoutDate}.toString() : ""]]></textFieldExpression>
+            </textField>
+
+            <!-- Total Price - amber/gold -->
+            <textField isBlankWhenNull="true">
+                <reportElement x="620" y="3" width="65"  height="18" forecolor="#FBBF24"/>
+                <textElement textAlignment="Center"><font size="8" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$F{totalPrice} != null ? "$ " + $F{totalPrice}.toString() : ""]]></textFieldExpression>
+            </textField>
+
+            <!-- Payment Status - colored badge background -->
+            <rectangle>
+                <reportElement x="687" y="4" width="56" height="16" backcolor="#4C1D95" mode="Opaque"/>
+            </rectangle>
+            <textField isBlankWhenNull="true">
+                <reportElement x="687" y="4" width="56"  height="16" forecolor="#DDD6FE"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="7" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$F{paymentStatus} != null ? $F{paymentStatus}.toString() : ""]]></textFieldExpression>
+            </textField>
+
+            <!-- Payment Method - teal badge -->
+            <rectangle>
+                <reportElement x="747" y="4" width="53" height="16" backcolor="#064E3B" mode="Opaque"/>
+            </rectangle>
+            <textField isBlankWhenNull="true">
+                <reportElement x="747" y="4" width="53"  height="16" forecolor="#6EE7B7"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="7" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$F{paymentMethod} != null ? $F{paymentMethod}.toString() : ""]]></textFieldExpression>
+            </textField>
+
+        </band>
+    </detail>
+
+    <!-- ==================== PAGE FOOTER ==================== -->
+    <pageFooter>
+        <band height="30">
+
+            <!-- Footer base -->
+            <rectangle>
+                <reportElement x="0" y="0" width="802" height="30" backcolor="#0A0F2E" mode="Opaque"/>
+            </rectangle>
+
+            <!-- Top accent line: gradient-like 3-segment colorful bar -->
+            <rectangle>
+                <reportElement x="0" y="0" width="267" height="3" backcolor="#FF6B35" mode="Opaque"/>
+            </rectangle>
+            <rectangle>
+                <reportElement x="267" y="0" width="268" height="3" backcolor="#FF2D78" mode="Opaque"/>
+            </rectangle>
+            <rectangle>
+                <reportElement x="535" y="0" width="267" height="3" backcolor="#00D4AA" mode="Opaque"/>
+            </rectangle>
+
+            <!-- Footer copyright -->
+            <staticText>
+                <reportElement x="10" y="8" width="400" height="16" forecolor="#6B7DB3"/>
+                <textElement verticalAlignment="Middle"><font size="8"/></textElement>
+                <text><![CDATA[© Hotel Booking System — Confidential & Proprietary]]></text>
+            </staticText>
+
+            <!-- Page number badge -->
+            <rectangle>
+                <reportElement x="645" y="6" width="147" height="18" backcolor="#1B0A4F" mode="Opaque"/>
+            </rectangle>
+            <rectangle>
+                <reportElement x="645" y="6" width="4" height="18" backcolor="#FFD700" mode="Opaque"/>
+            </rectangle>
+            <textField>
+                <reportElement x="652" y="6" width="140" height="18" forecolor="#FFD700"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle"><font size="8" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA["Page " + $V{PAGE_NUMBER} + "  of  " + $V{PAGE_COUNT}]]></textFieldExpression>
+            </textField>
+
+        </band>
+    </pageFooter>
+
+</jasperReport>

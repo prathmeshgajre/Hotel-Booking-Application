@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/layout/layout-main}">
+<head>
+    <title>Admin Dashboard</title>
+</head>
+<body>
+<th:block layout:fragment="content">
+    <div class="container">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <i class="bi bi-people-fill fs-1"></i>
+                        <h5 class="card-title">List Users</h5>
+                        <a th:href="@{/admin/users}" class="btn btn-primary">Go</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <i class="bi bi-building fs-1"></i>
+                        <h5 class="card-title">List Hotels</h5>
+                        <a th:href="@{/admin/hotels}" class="btn btn-primary">Go</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <i class="bi bi-bookmark-check fs-1"></i>
+                        <h5 class="card-title">List Bookings</h5>
+                        <a th:href="@{/admin/bookings}" class="btn btn-primary">Go</a>
+                    </div>
+                </div>
+            </div>
+            <!-- NEW CARD -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <i class="bi bi-calendar-range fs-1"></i>
+                        <h5 class="card-title">Search by Date Range</h5>
+                        <a th:href="@{/admin/reports/search}" class="btn btn-primary">Go</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+</body>
+</html>

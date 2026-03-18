@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/layout/layout-main}">
+<head>
+    <title>Search Bookings by Date</title>
+</head>
+<body>
+<th:block layout:fragment="content">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 offset-md-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="text-center">Search Bookings by Date Range</h2>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+                        <form method="get" th:action="@{/admin/reports/search/results}">
+                            <div class="form-group mb-3">
+                                <label class="form-label" for="fromDate">From Date:</label>
+                                <input class="form-control" id="fromDate" type="text" name="fromDate"
+                                       placeholder="Select from date" readonly>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="form-label" for="toDate">To Date:</label>
+                                <input class="form-control" id="toDate" type="text" name="toDate"
+                                       placeholder="Select to date" readonly>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="form-label" for="userId">
+                                    User ID <span class="text-muted">(optional — leave empty for all users)</span>:
+                                </label>
+                                <input class="form-control" id="userId" type="number" name="userId"
+                                       placeholder="Enter user ID (optional)">
+                            </div>
+                            <div class="form-group mb-3 d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">Search</button>
+                                <a th:href="@{/admin/dashboard}" class="btn btn-secondary">Back</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+<th:block layout:fragment="additional-scripts">
+    <script>
+        $(document).ready(function () {
+            const displayFormat = "dd.mm.yy";
+            const submitFormat = "yy-mm-dd";
+
+            $("#fromDate").datepicker({
+                dateFormat: displayFormat,
+                onClose: function (selectedDate) {
+                    if (selectedDate) {
+                        $("#toDate").datepicker("option", "minDate", selectedDate);
+                    }
+                }
+            });
+
+            $("#toDate").datepicker({
+                dateFormat: displayFormat
+            });
+
+            $("form").on("submit", function () {
+                var fromDate = $('#fromDate').datepicker('getDate');
+                var toDate = $('#toDate').datepicker('getDate');
+                if (fromDate) $('#fromDate').val($.datepicker.formatDate(submitFormat, fromDate));
+                if (toDate) $('#toDate').val($.datepicker.formatDate(submitFormat, toDate));
+            });
+        });
+    </script>
+</th:block>
+</body>
+</html>
