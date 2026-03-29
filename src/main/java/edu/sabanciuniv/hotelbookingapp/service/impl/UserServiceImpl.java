@@ -116,6 +116,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserDTO findUserByCustomerId(Long customerId) {
+        return customerRepository.findById(customerId)
+                .map(c -> mapUserToUserDto(c.getUser()))
+                .orElse(null);
+    }
+
+
+    @Override
     public List<UserDTO> findAllUsers() {
         List<User> userList = userRepository.findAll();
 
@@ -141,7 +149,6 @@ public class UserServiceImpl implements UserService {
 
         // Save UPDATE audit log before changing
         saveUpdateAuditLog(user, userDTO);
-
         setFormattedDataToUser(user, userDTO);
         userRepository.save(user);
         log.info("Successfully updated existing user with ID: {}", userDTO.getId());
@@ -159,6 +166,8 @@ public class UserServiceImpl implements UserService {
             throw new UsernameAlreadyExistsException("This username is already registered!");
         }
 
+        //saveUpdateAuditLog was missing here — now added
+        saveUpdateAuditLog(loggedInUser, userDTO);
         setFormattedDataToUser(loggedInUser, userDTO);
         userRepository.save(loggedInUser);
         log.info("Successfully updated logged in user with ID: {}", loggedInUser.getId());
@@ -172,26 +181,52 @@ public class UserServiceImpl implements UserService {
         List<UserAuditLog> logs = new ArrayList<>();
 
         // Check email change
-        String newEmail = userDTO.getUsername() != null ? userDTO.getUsername().trim() : "-";
-        String newName = userDTO.getName() != null ? formatText(userDTO.getName()) : "-";
-        String newLastName = userDTO.getLastName() != null ? formatText(userDTO.getLastName()) : "-";
+        String newEmail     = userDTO.getUsername() != null ? userDTO.getUsername().trim() : "";
+        String newName      = userDTO.getName()     != null ? formatText(userDTO.getName()) : "";
+        String newLastName  = userDTO.getLastName() != null ? formatText(userDTO.getLastName()) : "";
 
-        logs.add(UserAuditLog.builder().user(user).fieldName("Email")
-                .oldValue(user.getUsername())
-                .newValue(!newEmail.isEmpty() ? newEmail : "-")
-                .changeType("UPDATE").build());
+        // Only log Email if it actually changed
+        if (!newEmail.equals(user.getUsername())){
+            logs.add(UserAuditLog.builder()
+                    .user(user)
+                    .fieldName("Email")
+                    .oldValue(user.getUsername())
+                    .newValue(!newEmail.isEmpty() ? newEmail : "-")
+                    .changeType("UPDATE")
+                    .build());
+        }
 
-        logs.add(UserAuditLog.builder().user(user).fieldName("First Name")
-                .oldValue(user.getName())
-                .newValue(!newName.isEmpty() ? newName : "-")
-                .changeType("UPDATE").build());
+        // Only log First Name if it actually changed
+        if (!newName.equals(user.getName())){
+            logs.add(UserAuditLog.builder()
+                    .user(user)
+                    .fieldName("First Name")
+                    .oldValue(user.getName())
+                    .newValue(!newName.isEmpty() ? newName : "-")
+                    .changeType("UPDATE")
+                    .build());
+        }
 
-        logs.add(UserAuditLog.builder().user(user).fieldName("Last Name")
-                .oldValue(user.getLastName())
-                .newValue(!newLastName.isEmpty() ? newLastName : "-")
-                .changeType("UPDATE").build());
 
-        auditLogRepository.saveAll(logs);
+        // Only log Last Name if it actually changed
+        if (!newLastName.equals(user.getLastName())){
+            logs.add(UserAuditLog.builder()
+                    .user(user)
+                    .fieldName("Last Name")
+                    .oldValue(user.getLastName())
+                    .newValue(!newLastName.isEmpty() ? newLastName : "-")
+                    .changeType("UPDATE")
+                    .build());
+        }
+
+        if (!logs.isEmpty()){
+            auditLogRepository.saveAll(logs);
+            log.info("Saved update audit log for user ID: {} — {} field(s) changed",
+                    user.getId(), logs.size());
+        } else {
+            log.info("No fields changed for user ID: {} — skipping audit log", user.getId());
+        }
+
         log.info("Saved update audit log for user ID: {}", user.getId());
     }
 
@@ -208,34 +243,35 @@ public class UserServiceImpl implements UserService {
 
         List<UserAuditLog> allLogs = auditLogRepository.findByUserIdOrderByChangedAtAsc(userId);
 
-        // Fields to track
         List<String> fields = Arrays.asList("Email", "First Name", "Last Name");
         List<UserAuditLogDTO> result = new ArrayList<>();
 
         for (String field : fields) {
 
-            // Get current value from DB
+            // RED — always live current value from DB
             String currentValue = switch (field) {
-                case "Email" -> user.getUsername();
+                case "Email"      -> user.getUsername();
                 case "First Name" -> user.getName();
-                case "Last Name" -> user.getLastName();
-                default -> "-";
+                case "Last Name"  -> user.getLastName();
+                default           -> "-";
             };
 
-            // Original value (BLACK)
-            // FIX: If no ORIGINAL log found (existing users before audit was added),
-            // fall back to current DB value so page doesn't show blank/error
+            // BLACK — registration value, stored once at registration, never changes
+            // If no ORIGINAL log exists (e.g. user created before audit was added),
+            // show "N/A" instead of currentValue to avoid BLACK showing updated data
             String originalValue = allLogs.stream()
                     .filter(l -> l.getFieldName().equals(field)
                             && l.getChangeType().equals("ORIGINAL"))
                     .findFirst()
                     .map(UserAuditLog::getNewValue)
-                    .orElse(currentValue); // <-- KEY FIX: fallback to current value
+                    .orElse("N/A"); // ← FIX: was orElse(currentValue) which showed updated value in BLACK
 
-            // Get latest update log for this field
+            // GREEN — only the latest UPDATE log for this specific field
+            // If no UPDATE log exists for this field, hasChanged = false → UI shows "—"
             Optional<UserAuditLog> latestUpdate = allLogs.stream()
-                    .filter(l -> l.getFieldName().equals(field) && l.getChangeType().equals("UPDATE"))
-                    .reduce((first, second) -> second); // get last
+                    .filter(l -> l.getFieldName().equals(field)
+                            && l.getChangeType().equals("UPDATE"))
+                    .reduce((first, second) -> second); // get the last one
 
             boolean hasChanged = latestUpdate.isPresent();
             String changedValue = hasChanged ? latestUpdate.get().getNewValue() : "-";
@@ -252,6 +288,7 @@ public class UserServiceImpl implements UserService {
 
         return result;
     }
+
 
     @Override
     public void deleteUserById(Long id) {

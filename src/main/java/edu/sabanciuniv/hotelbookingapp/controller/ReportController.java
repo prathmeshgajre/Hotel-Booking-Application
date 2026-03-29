@@ -40,13 +40,6 @@ public class ReportController {
     @GetMapping("/admin/reports/bookings")
     public ResponseEntity<byte[]> generateAdminBookingReport() {
         byte[] report = reportService.generateBookingReport();
-
-        /*return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "inline; filename=admin-booking-report.pdf")
-                .contentType(MediaType.APPLICATION_PDF)
-                .body(report);*/
-
         return buildPdfResponse(report, "admin-booking-report.pdf");
     }
 
@@ -58,12 +51,6 @@ public class ReportController {
         UserDTO user = userService.findUserDTOByUsername(auth.getName());
 
         byte[] report = reportService.generateCustomerBookingReport(user.getId());
-
-        /*return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "inline; filename=my-bookings.pdf")
-                .contentType(MediaType.APPLICATION_PDF)
-                .body(report);*/
 
         return buildPdfResponse(report, "my-bookings.pdf");
     }
@@ -80,6 +67,7 @@ public class ReportController {
      * GET /admin/reports/bookings/date-range?fromDate=2026-01-01&toDate=2026-03-31&userId=2
      */
 
+    @GetMapping("/admin/reports/bookings/date-range")
     public ResponseEntity<byte[]> generateDateRangeReport(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)LocalDate fromDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)LocalDate toDate,

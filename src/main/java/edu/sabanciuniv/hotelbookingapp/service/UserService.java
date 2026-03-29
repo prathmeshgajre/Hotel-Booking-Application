@@ -32,4 +32,6 @@ public interface UserService {
     // NEW - get audit history for a user
     List<UserAuditLogDTO> getUserAuditHistory(Long userId);
 
+    UserDTO findUserByCustomerId(Long customerId);
+
 }

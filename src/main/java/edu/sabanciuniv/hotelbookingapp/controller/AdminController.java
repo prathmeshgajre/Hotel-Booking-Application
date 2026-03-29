@@ -4,6 +4,7 @@ import edu.sabanciuniv.hotelbookingapp.exception.HotelAlreadyExistsException;
 import edu.sabanciuniv.hotelbookingapp.exception.UsernameAlreadyExistsException;
 import edu.sabanciuniv.hotelbookingapp.model.dto.BookingDTO;
 import edu.sabanciuniv.hotelbookingapp.model.dto.HotelDTO;
+import edu.sabanciuniv.hotelbookingapp.model.dto.UserAuditLogDTO;
 import edu.sabanciuniv.hotelbookingapp.model.dto.UserDTO;
 import edu.sabanciuniv.hotelbookingapp.repository.BookingRepository;
 import edu.sabanciuniv.hotelbookingapp.service.BookingService;
@@ -205,13 +206,15 @@ public class AdminController {
             }
 
             List<UserDTO> uniqueUsers = bookings.stream()
-                    .map(b -> userService.findUserById(b.getCustomerId()))
+                    .map(b -> userService.findUserByCustomerId(b.getCustomerId()))
+                    .filter(u -> u != null)
                     .distinct()
                     .collect(Collectors.toList());
 
             Map<Long, Long> bookingCountByUser = bookings.stream()
+                    .filter(b -> userService.findUserByCustomerId(b.getCustomerId()) != null)
                     .collect(Collectors.groupingBy(
-                            BookingDTO::getCustomerId,
+                            b -> userService.findUserByCustomerId(b.getCustomerId()).getId(),
                             Collectors.counting()
                     ));
 
@@ -230,7 +233,7 @@ public class AdminController {
             redirectAttributes.addFlashAttribute(
                     "errorMessage",
                     "Error fetching report results."
-            );
+                    + e.getMessage());
 
             return "redirect:/admin/reports/search";
         }
@@ -242,12 +245,19 @@ public class AdminController {
     public String viewUserBookingHistory(@PathVariable Long userId,
                                          Model model,
                                          RedirectAttributes redirectAttributes) {
-
         try {
-
             UserDTO user = userService.findUserById(userId);
-            List<BookingDTO> bookings = bookingService.findBookingsByCustomerId(userId);
-            List<?> auditHistory = userService.getUserAuditHistory(userId);
+
+            // FIX 3: use findAllBookingsByUserId which queries by USER id correctly
+            List<BookingDTO> bookings = bookingRepository
+                    .findAllBookingsByUserId(userId)
+                    .stream()
+                    .map(b -> bookingService.findBookingById(b.getId()))
+                    .collect(Collectors.toList());
+
+            log.info("Found {} bookings for userId={}", bookings.size(), userId);
+
+            List<UserAuditLogDTO> auditHistory = userService.getUserAuditHistory(userId);
 
             model.addAttribute("user", user);
             model.addAttribute("bookings", bookings);
@@ -256,7 +266,6 @@ public class AdminController {
             return "admin/user-booking-history";
 
         } catch (EntityNotFoundException e) {
-
             redirectAttributes.addFlashAttribute("errorMessage", "User not found.");
             return "redirect:/admin/reports/search";
         }

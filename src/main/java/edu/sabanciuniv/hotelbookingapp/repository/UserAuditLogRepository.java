@@ -10,6 +10,6 @@ public interface UserAuditLogRepository extends JpaRepository<UserAuditLog, Long
     // Get all logs for a user ordered by time
     List<UserAuditLog> findByUserIdOrderByChangedAtAsc(Long userId);
 
-    // Get only original registration data
-    List<UserAuditLog> findByUserIdAndChangeType(Long userId, String changeType);
+    /*// Get only original registration data
+    List<UserAuditLog> findByUserIdAndChangeType(Long userId, String changeType);*/
 }

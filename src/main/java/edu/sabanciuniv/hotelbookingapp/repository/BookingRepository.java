@@ -23,21 +23,21 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> findByCustomerId(Long customerId);
 
-    // Get all bookings between date range (no userId filter)
+    // Get all bookings where stay period falls within the date range (no userId filter)
     @Query("SELECT b FROM Booking b WHERE " +
-            "FUNCTION('DATE', b.bookingDate) >= :fromDate AND " +
-            "FUNCTION('DATE', b.bookingDate) <= :toDate " +
-            "ORDER BY b.bookingDate DESC")
+            "b.checkinDate >= :fromDate AND " +
+            "b.checkoutDate <= :toDate " +
+            "ORDER BY b.checkinDate ASC")
     List<Booking> findBookingsByDateRange(
             @Param("fromDate") LocalDate fromDate,
             @Param("toDate") LocalDate toDate);
 
-    // Get bookings between date range for a specific user
+    /// Get bookings where stay period falls within the date range for a specific user
     @Query("SELECT b FROM Booking b WHERE " +
-            "FUNCTION('DATE', b.bookingDate) >= :fromDate AND " +
-            "FUNCTION('DATE', b.bookingDate) <= :toDate AND " +
+            "b.checkinDate >= :fromDate AND " +
+            "b.checkoutDate <= :toDate AND " +
             "b.customer.user.id = :userId " +
-            "ORDER BY b.bookingDate DESC")
+            "ORDER BY b.checkinDate ASC")
     List<Booking> findBookingsByDateRangeAndUserId(
             @Param("fromDate") LocalDate fromDate,
             @Param("toDate") LocalDate toDate,
